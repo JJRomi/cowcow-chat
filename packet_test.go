@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"math/rand"
 	"testing"
 )
 
@@ -27,31 +27,54 @@ func TestPacket(t *testing.T) {
 	// packet(비즈니스 처리한 패킷) -> RoomListPacket
 	// bPacket -> PacketBuffer
 
-	roomPacket := &RoomListPacket{
+	/*roomPacket := &RequestRoomListPacket{
 		CurrentPage: -1,
 		PerPage:     1,
+	}*/
+	/*maxSize := 10000 * 100
+	var roomPacketData []RequestRoomListPacket = make([]RequestRoomListPacket, maxSize)
+	for i := 0; i < maxSize; i++ {
+		roomPacketData[i] = makeTestData(i)
 	}
 
 	packet := &WritePacket{}
-	packet.put(22, roomPacket)
-	body := packet.merge()
+	for i := 0; i < maxSize; i++ {
+		go sendPacket(packet, roomPacketData[i])
+	}
+	fmt.Println("count: ", count)*/
 
-	fmt.Println(body)
+	/*
+		readPacket := &ReadPacket{}
+		readPacket.parse(body)
 
-	readPacket := &ReadPacket{}
-	readPacket.parse(body)
+		roomPacket2 := &RoomListPacket{}
+		roomPacket2.unMarshal(readPacket.PacketData)
+		fmt.Printf("result %#v \n", roomPacket2)
+	*/
 
-	roomPacket2 := &RoomListPacket{}
-	roomPacket2.unMarshal(readPacket.PacketData)
-	fmt.Printf("result %#v \n", roomPacket2)
 	// -> send
 
-	// --------------------- network ------------------------------------
+	// --------------------- network ---------------------------------
 
 	// --------------------- server side -----------------------------
-	// receive
+	//  receive
 	//	queue := NewQueue()
 	//	queue.Enqueue(b)
 
-	// ------------------------------- logic process ----------------
+	// --------------------- logic process ---------------------------
+}
+
+func sendPacket(packet *WritePacket, data interface{}) {
+	packet.put(1, data)
+	//packet.put(1, roomPacketData[i])
+	body := packet.merge()
+	run(body)
+}
+
+func makeTestData(id int) RequestRoomListPacket {
+	return RequestRoomListPacket{
+		CurrentPage: rand.Intn(100),
+		PerPage:     rand.Intn(100),
+		Id:          id,
+	}
 }

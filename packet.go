@@ -22,10 +22,17 @@ type Packet []byte
 // type 0
 // 1. 4(type) | 4(cur_page) | cur_page | 4(perPage) | perPage
 // 2. 8(type)  | 4(full data length) | 4(cur_page) | cur_page | 4(perPage) | perPage
-type RoomListPacket struct {
+type RequestRoomListPacket struct {
 	// PacketType  int
+	Id          int
 	CurrentPage int
 	PerPage     int
+}
+
+type SuccessRoomListPacket struct {
+}
+
+type FailRoomListPacket struct {
 }
 
 type RoomPacket struct {
@@ -51,7 +58,7 @@ func (r *test) put(data interface{}) {
 }
 */
 
-func convertPacketRoomList(p *RoomListPacket) Packet {
+func convertPacketRoomList(p *RequestRoomListPacket) Packet {
 	data, err := json.Marshal(p)
 	if err != nil {
 		fmt.Errorf("convertPacket error: %s", err)
@@ -59,8 +66,8 @@ func convertPacketRoomList(p *RoomListPacket) Packet {
 	return data
 }
 
-func convertRoomList(p *Packet) *RoomListPacket {
-	var room = &RoomListPacket{}
+func convertRoomList(p *Packet) *RequestRoomListPacket {
+	var room = &RequestRoomListPacket{}
 	err := json.Unmarshal(*p, room)
 	if err != nil {
 		fmt.Errorf("convertRoomList error: %s", err)
@@ -141,11 +148,11 @@ func (p *ReadPacket) readType(buffer *bytes.Buffer) error {
 	var typeSize = unsafe.Sizeof(int32(1))
 	// buffer를 typesize만큼 자르는 부분
 	buf := buffer.Bytes()
-	fmt.Println(typeSize)
+	//	fmt.Println(typeSize)
 	packetTypeByte := buf[:typeSize]
-	fmt.Println("packet: ", packetTypeByte)
+	//	fmt.Println("packet: ", packetTypeByte)
 	p.PacketType = int32(binary.BigEndian.Uint32(packetTypeByte))
-	fmt.Println("packet int: ", p.PacketType)
+	//	fmt.Println("packet int: ", p.PacketType)
 	return nil
 }
 
@@ -156,7 +163,7 @@ func (p *ReadPacket) readData(buffer *bytes.Buffer) error {
 	return nil
 }
 
-func (p *RoomListPacket) unMarshal(data []byte) error {
+func (p *RequestRoomListPacket) unMarshal(data []byte) error {
 	err := json.Unmarshal(data, p)
 	if err != nil {
 		return err
