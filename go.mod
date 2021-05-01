@@ -1,1 +1,3 @@
-module "cowcow-chat"
+module cowcow-chat
+
+go 1.15
