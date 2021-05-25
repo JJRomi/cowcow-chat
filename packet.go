@@ -31,7 +31,8 @@ type Topic struct {
 
 type Consumer struct {
 	ConsumerInfo string
-	TopicList    *Queue // 필요할까?
+	TopicList    string
+	LastKey      string
 }
 
 type ConsumerGroup struct {
@@ -51,41 +52,49 @@ type ReadPacket struct {
 
 /*
 - create topic "topicName"
-
     add topic list
+
 - subscribe topic "topicName"
     add consumer
+
 - publish topic "message"
     add topic message
     call consumer list
     send message
-    receive message
     save consumer last key
+
+- receive message
+
 */
 
-func createTopic() {
-	// add topic list
+func createTopic(p *Packet) {
+	var topic = &Topic{}
+	err := json.Unmarshal(*p, topic)
+	if err != nil {
+		fmt.Errorf("create Topic error: #{err")
+	}
+}
+
+func addTopicList(topic *Topic) {
+	// add topic list queue- topic name
+
 }
 
 func subscribeTopic() {
-	// add consumer info
+	// add consumer info to topic list
+	// add consumer info to consumer list
 }
 
-func addTopicList() {
-	// dd topic list queue- topic name
-}
-
-func addConsumer() {
+func addConsumerToTopicList() {
 	// add topic consumer group
 	// add consumer
 }
 
-func PublishTopic() {
+func publishTopic() {
 	// add topic message queue
-}
-
-func ReadTopic() {
-	// dl
+	// call consumer list
+	// send message
+	// save consumer last key
 }
 
 func convertPacketRoomList(p *RequestRoomListPacket) Packet {
@@ -93,7 +102,6 @@ func convertPacketRoomList(p *RequestRoomListPacket) Packet {
 	if err != nil {
 		fmt.Errorf("convertPacket error: %s", err)
 	}
-
 	return data
 }
 
@@ -103,7 +111,6 @@ func convertRoomList(p *Packet) *RequestRoomListPacket {
 	if err != nil {
 		fmt.Errorf("convertRoomList error: %s", err)
 	}
-
 	return room
 }
 
@@ -114,13 +121,11 @@ func convertRoomList(p *Packet) *RequestRoomListPacket {
    -> packet type 4byte로 정의해서 변경
    -> packet data -> json marshal
    -> type, data 연결해서 하나로 전송
-
 2. packet 받기
 - packet type, data로 분리하여 해당 type에 맞춰서 알맞은 로직으로 전달
    -> packet convert 할 때 4byte는 type으로 보고 string으로 변경해서 type 확인
    -> 나머지 byte 자르고 json unmarshal
 */
-
 func (p *WritePacket) put(packetType int32, packetData interface{}) {
 	p.PacketType = packetType
 	p.PacketData = packetData
@@ -134,7 +139,6 @@ func (p *WritePacket) merge() []byte {
 		fmt.Println("merge marshal error: ", err)
 	}
 	buf.Write(data)
-
 	return buf.Bytes()
 }
 
@@ -142,7 +146,6 @@ func (p *ReadPacket) parse(packet Packet) error {
 	buf := bytes.NewBuffer(packet)
 	p.readType(buf)
 	p.readData(buf)
-
 	return nil
 }
 
@@ -151,7 +154,6 @@ func (p *ReadPacket) readType(buffer *bytes.Buffer) error {
 	buf := buffer.Bytes()
 	packetTypeByte := buf[:typeSize]
 	p.PacketType = int32(binary.BigEndian.Uint32(packetTypeByte))
-
 	return nil
 }
 
@@ -159,7 +161,6 @@ func (p *ReadPacket) readData(buffer *bytes.Buffer) error {
 	var typeSize = unsafe.Sizeof(int32(1))
 	buf := buffer.Bytes()
 	p.PacketData = buf[typeSize:]
-
 	return nil
 }
 
@@ -168,7 +169,6 @@ func (p *RequestRoomListPacket) dataUnmarshal(data []byte) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -178,7 +178,6 @@ func intToByte(f int32) []byte {
 	if err != nil {
 		fmt.Println("binary.Write failed: ", err)
 	}
-
 	return buf.Bytes()
 }
 
@@ -188,6 +187,5 @@ func float64ToByte(f float64) []byte {
 	if err != nil {
 		fmt.Println("binary.Write failed :", err)
 	}
-
 	return buf.Bytes()
 }
