@@ -20,6 +20,25 @@ type RoomPacket struct {
 	val int32
 }
 
+type TopicList struct {
+	TopicName     string
+	ConsumerGroup *ConsumerGroup
+}
+
+type Topic struct {
+	MessageQueue *Queue
+}
+
+type Consumer struct {
+	ConsumerInfo string
+	TopicList    *Queue // 필요할까?
+}
+
+type ConsumerGroup struct {
+	Consumer  *Consumer
+	TopicName string // key
+}
+
 type WritePacket struct {
 	PacketType int32
 	PacketData interface{}
@@ -28,6 +47,45 @@ type WritePacket struct {
 type ReadPacket struct {
 	PacketType int32
 	PacketData []byte
+}
+
+/*
+- create topic "topicName"
+
+    add topic list
+- subscribe topic "topicName"
+    add consumer
+- publish topic "message"
+    add topic message
+    call consumer list
+    send message
+    receive message
+    save consumer last key
+*/
+
+func createTopic() {
+	// add topic list
+}
+
+func subscribeTopic() {
+	// add consumer info
+}
+
+func addTopicList() {
+	// dd topic list queue- topic name
+}
+
+func addConsumer() {
+	// add topic consumer group
+	// add consumer
+}
+
+func PublishTopic() {
+	// add topic message queue
+}
+
+func ReadTopic() {
+	// dl
 }
 
 func convertPacketRoomList(p *RequestRoomListPacket) Packet {
